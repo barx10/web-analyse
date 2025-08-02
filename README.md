@@ -44,6 +44,20 @@ firebase emulators:start
 # Gå til http://localhost:5000
 ```
 
+## 📷 Screenshots
+
+### Hovedside
+![Hovedside](images/hovedside.png)
+
+### Analyse Resultater
+![Analyse Resultater](images/analyseresultater.png)
+
+### Core Web Vitals Forklaring
+![Core Web Vitals Tooltip](images/core-web-vitals-tooltip.png)
+
+### Nyttige Verktøy
+![Verktøy Seksjon](images/verktøy-seksjon.png)
+
 ## 📊 Hva appen analyserer
 
 ### Performance Metrikker
