@@ -1,0 +1,18 @@
+{
+  "name": "web-audit",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "chrome-launcher": "^1.2.0",
+    "firebase": "^12.0.0",
+    "firebase-functions": "^6.4.0",
+    "lighthouse": "^12.8.1"
+  }
+}

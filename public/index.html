@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-analyse</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .hero-illustration {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero-illustration img {
+            max-width: 200px;
+            width: 100%;
+            height: auto;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+        
+        .hero-illustration img:hover {
+            opacity: 1;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 2rem 0;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .score-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .score-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .score-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .score-status {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .status-excellent { color: #28a745; }
+        .status-good { color: #17a2b8; }
+        .status-needs-improvement { color: #ffc107; }
+        .status-poor { color: #dc3545; }
+        
+        .url-tested {
+            background: #e9ecef;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            word-break: break-all;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .recommendations {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .category-detail {
+            background: #f8f9fa;
+            margin: 1rem 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-content {
+            padding: 1.5rem;
+            display: none;
+        }
+        
+        .category-content.active {
+            display: block;
+        }
+        
+        .recommendation-item {
+            background: white;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .recommendation-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .recommendation-desc {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .core-vitals {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .vital-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s, transform 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .vital-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .vital-card.good { border-color: #28a745; }
+        .vital-card.needs-improvement { border-color: #ffc107; }
+        .vital-card.poor { border-color: #dc3545; }
+        
+        .vital-name {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .vital-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.2rem;
+        }
+        
+        .vital-unit {
+            font-size: 0.7rem;
+            color: #888;
+        }
+        
+        .vital-status {
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
+            font-weight: 500;
+        }
+        
+        .opportunities {
+            margin-top: 1.5rem;
+        }
+        
+        .opportunity-item {
+            background: #fff3cd;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .opportunity-title {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+            color: #856404;
+        }
+        
+        .opportunity-desc {
+            font-size: 0.9rem;
+            color: #856404;
+            margin-bottom: 0.3rem;
+        }
+        
+        .opportunity-savings {
+            font-size: 0.8rem;
+            color: #856404;
+            font-style: italic;
+        }
+        
+        .vital-explanation {
+            position: fixed;
+            background: #333;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            max-width: 300px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            line-height: 1.4;
+        }
+        
+        .vital-explanation::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #333;
+        }
+        
+        .vital-explanation h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #fff;
+        }
+        
+        .vital-explanation .metric-range {
+            margin: 0.5rem 0;
+            font-size: 0.8rem;
+        }
+        
+        .vital-explanation .range-good { color: #4CAF50; }
+        .vital-explanation .range-improvement { color: #FF9800; }
+        .vital-explanation .range-poor { color: #F44336; }
+        
+        .tools-section {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .tool-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+        
+        .tool-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .tool-category {
+            font-size: 0.8rem;
+            color: #667eea;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tool-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tool-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+        
+        .tool-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        
+        .tool-link:hover {
+            transform: translateY(-1px);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .tool-price {
+            background: #28a745;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: auto;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        
+        .footer a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-illustration">
+            <img src="web-analyse-hero.png" alt="Web-analyse illustrasjon" id="heroImage">
+        </div>
+        <h1>🔍 Web-analyse</h1>
+        <p class="subtitle">Sjekk hvordan nettstedet ditt virker</p>
+        
+        <form id="auditForm">
+            <div class="input-group">
+                <label for="url">URL til nettside:</label>
+                <input type="url" id="url" placeholder="https://example.com" required>
+            </div>
+            <button type="submit" id="submitBtn">Start Analyse</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyserer nettside...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="results" id="results">
+            <h2>Resultater</h2>
+            <div class="url-tested" id="urlTested"></div>
+            <div class="score-grid">
+                <div class="score-card" onclick="showCategoryDetails('performance')">
+                    <div class="score-title">Performance</div>
+                    <div class="score-value" id="performance">-</div>
+                    <div class="score-status" id="performanceStatus"></div>
+                </div>
+                <div class="score-card" onclick="showCategoryDetails('seo')">
+                    <div class="score-title">SEO</div>
+                    <div class="score-value" id="seo">-</div>
+                    <div class="score-status" id="seoStatus"></div>
+                </div>
+                <div class="score-card" onclick="showCategoryDetails('accessibility')">
+                    <div class="score-title">Accessibility</div>
+                    <div class="score-value" id="accessibility">-</div>
+                    <div class="score-status" id="accessibilityStatus"></div>
+                </div>
+                <div class="score-card" onclick="showCategoryDetails('bestPractices')">
+                    <div class="score-title">Best Practices</div>
+                    <div class="score-value" id="bestPractices">-</div>
+                    <div class="score-status" id="bestPracticesStatus"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="core-vitals" id="coreVitals">
+            <h2>🚀 Core Web Vitals</h2>
+            <p style="color: #666; margin-bottom: 1rem;">Googles viktigste målepunkter for brukeropplevelse</p>
+            <div class="vitals-grid" id="vitalsGrid">
+                <!-- Core Web Vitals will be populated here -->
+            </div>
+            
+            <!-- Explanation tooltip -->
+            <div class="vital-explanation" id="vitalExplanation"></div>
+            
+            <div class="opportunities" id="opportunities">
+                <h3>💡 Forbedringsmuligheter</h3>
+                <div id="opportunitiesList">
+                    <!-- Opportunities will be populated here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendations" id="recommendations">
+            <h2>📋 Detaljerte anbefalinger</h2>
+            
+            <div class="category-detail">
+                <div class="category-header" onclick="toggleCategory('performance')">
+                    <span>🚀 Performance - Hastighet og ytelse</span>
+                    <span class="toggle-icon" id="performanceToggle">▼</span>
+                </div>
+                <div class="category-content" id="performanceContent">
+                    <div class="recommendation-item">
+                        <div class="recommendation-title">Hva måles:</div>
+                        <div class="recommendation-desc">Hvor raskt nettsiden lastes og blir interaktiv. Inkluderer målinger som First Contentful Paint, Largest Contentful Paint, og Cumulative Layout Shift.</div>
+                    </div>
+                    <div id="performanceRecommendations"></div>
+                </div>
+            </div>
+            
+            <div class="category-detail">
+                <div class="category-header" onclick="toggleCategory('seo')">
+                    <span>🔍 SEO - Søkemotoroptimalisering</span>
+                    <span class="toggle-icon" id="seoToggle">▼</span>
+                </div>
+                <div class="category-content" id="seoContent">
+                    <div class="recommendation-item">
+                        <div class="recommendation-title">Hva måles:</div>
+                        <div class="recommendation-desc">Hvor godt optimalisert nettsiden er for søkemotorer. Sjekker meta-tagger, overskrifter, bildetekster og teknisk SEO.</div>
+                    </div>
+                    <div id="seoRecommendations"></div>
+                </div>
+            </div>
+            
+            <div class="category-detail">
+                <div class="category-header" onclick="toggleCategory('accessibility')">
+                    <span>♿ Accessibility - Tilgjengelighet</span>
+                    <span class="toggle-icon" id="accessibilityToggle">▼</span>
+                </div>
+                <div class="category-content" id="accessibilityContent">
+                    <div class="recommendation-item">
+                        <div class="recommendation-title">Hva måles:</div>
+                        <div class="recommendation-desc">Hvor tilgjengelig nettsiden er for brukere med nedsatt funksjonsevne. Sjekker kontrast, alt-tekster, tastaturnavigasjon og skjermleser-støtte.</div>
+                    </div>
+                    <div id="accessibilityRecommendations"></div>
+                </div>
+            </div>
+            
+            <div class="category-detail">
+                <div class="category-header" onclick="toggleCategory('bestPractices')">
+                    <span>✅ Best Practices - Beste praksis</span>
+                    <span class="toggle-icon" id="bestPracticesToggle">▼</span>
+                </div>
+                <div class="category-content" id="bestPracticesContent">
+                    <div class="recommendation-item">
+                        <div class="recommendation-title">Hva måles:</div>
+                        <div class="recommendation-desc">Generelle beste praksis for webutvikling. Sjekker sikkerhet, moderne web-standarder og brukeropplevelse.</div>
+                    </div>
+                    <div id="bestPracticesRecommendations"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tools-section" id="toolsSection">
+            <h2>🛠️ Nyttige verktøy</h2>
+            <p style="color: #666; margin-bottom: 1rem;">Gratis verktøy for å forbedre nettsiden din</p>
+            
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <div class="tool-category">Bilder & Performance</div>
+                    <div class="tool-name">TinyPNG</div>
+                    <div class="tool-description">Komprimér PNG og JPG bilder uten kvalitetstap. Reduserer filstørrelse med opptil 80%.</div>
+                    <a href="https://tinypng.com" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">Bilder & Performance</div>
+                    <div class="tool-name">Squoosh</div>
+                    <div class="tool-description">Google sitt avanserte bildekomprimeringsverktøy. Støtter WebP, AVIF og andre moderne formater.</div>
+                    <a href="https://squoosh.app" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">SEO</div>
+                    <div class="tool-name">Google Search Console</div>
+                    <div class="tool-description">Overvåk hvordan Google ser nettsiden din. Identifiser SEO-problemer og se søkeresultater.</div>
+                    <a href="https://search.google.com/search-console" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">SEO</div>
+                    <div class="tool-name">Schema Markup Generator</div>
+                    <div class="tool-description">Lag strukturerte data for bedre SEO. Hjelper søkemotorer forstå innholdet ditt.</div>
+                    <a href="https://technicalseo.com/tools/schema-markup-generator/" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">Tilgjengelighet</div>
+                    <div class="tool-name">WebAIM Contrast Checker</div>
+                    <div class="tool-description">Sjekk fargekontrast mellom tekst og bakgrunn. Sørg for at nettsiden oppfyller WCAG-krav.</div>
+                    <a href="https://webaim.org/resources/contrastchecker/" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">Tilgjengelighet</div>
+                    <div class="tool-name">WAVE Web Accessibility Evaluator</div>
+                    <div class="tool-description">Analyser nettsiden din for tilgjengelighetsproblemer og få konkrete forbedringsforslag.</div>
+                    <a href="https://wave.webaim.org/" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">Performance</div>
+                    <div class="tool-name">GTmetrix</div>
+                    <div class="tool-description">Detaljert performance-analyse med konkrete forbedringsforslag og overvåking over tid.</div>
+                    <a href="https://gtmetrix.com" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">Performance</div>
+                    <div class="tool-name">WebPageTest</div>
+                    <div class="tool-description">Test lastehastighet fra forskjellige lokasjoner og enheter. Få vannfall-diagrammer og detaljerte metrikker.</div>
+                    <a href="https://www.webpagetest.org" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">CSS & JavaScript</div>
+                    <div class="tool-name">CSS Minifier</div>
+                    <div class="tool-description">Minifisér CSS-koden din for raskere lasting. Fjern unødvendige mellomrom og kommentarer.</div>
+                    <a href="https://cssminifier.com" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">CSS & JavaScript</div>
+                    <div class="tool-name">JavaScript Minifier</div>
+                    <div class="tool-description">Komprimér JavaScript-filer for bedre performance. Reduserer filstørrelse betydelig.</div>
+                    <a href="https://jscompress.com" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">Mobile & Responsive</div>
+                    <div class="tool-name">Google Mobile-Friendly Test</div>
+                    <div class="tool-description">Test om nettsiden din er mobilvenleg og få tips for forbedringer.</div>
+                    <a href="https://search.google.com/test/mobile-friendly" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+                
+                <div class="tool-card">
+                    <div class="tool-category">SSL & Sikkerhet</div>
+                    <div class="tool-name">SSL Labs SSL Test</div>
+                    <div class="tool-description">Test SSL-sertifikatet ditt og få sikkerhetsvurdering med detaljerte anbefalinger.</div>
+                    <a href="https://www.ssllabs.com/ssltest/" target="_blank" class="tool-link">Bruk verktøy<span class="tool-price">GRATIS</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Laget med ❤️ av Kenneth Bareksten | Powered by Google Lighthouse & Firebase</p>
+    </div>
+
+    <script>
+        const recommendationData = {
+            performance: {
+                excellent: [
+                    { title: "Gratulerer! 🎉", desc: "Nettsiden har utmerket ytelse. Fortsett å optimalisere bilder og hold koden ren." }
+                ],
+                good: [
+                    { title: "Optimaliser bilder", desc: "Bruk moderne formater som WebP og komprimér bilder før opplasting." },
+                    { title: "Minifisér CSS og JavaScript", desc: "Fjern unødvendig kode og redusér filstørrelser." }
+                ],
+                'needs-improvement': [
+                    { title: "Redusér server-responstid", desc: "Optimaliser database-spørringer og vurder bedre hosting." },
+                    { title: "Implementér caching", desc: "Bruk browser-caching og CDN for raskere lasting." },
+                    { title: "Optimaliser Critical Rendering Path", desc: "Last inn viktig CSS først og utsett ikke-kritisk innhold." }
+                ],
+                poor: [
+                    { title: "Komprimér og optimaliser alle bilder", desc: "Store bilder er hovedårsaken til treg lasting. Bruk riktig format og størrelse." },
+                    { title: "Redusér HTTP-forespørsler", desc: "Kombiner CSS/JS-filer og fjern unødvendige plugins." },
+                    { title: "Oppgradér hosting", desc: "Vurder raskere server eller CDN-løsning." },
+                    { title: "Implementér lazy loading", desc: "Last inn innhold kun når brukeren trenger det." }
+                ]
+            },
+            seo: {
+                excellent: [
+                    { title: "Utmerket SEO! 🎯", desc: "Nettsiden følger beste praksis for søkemotoroptimalisering." }
+                ],
+                good: [
+                    { title: "Legg til meta-beskrivelser", desc: "Skriv unike og beskrivende meta-descriptions for alle sider." },
+                    { title: "Optimaliser overskrifter", desc: "Bruk H1-H6 tagger logisk og inkludér nøkkelord." }
+                ],
+                'needs-improvement': [
+                    { title: "Forbedre title-tagger", desc: "Skriv unike, beskrivende titler under 60 tegn." },
+                    { title: "Legg til alt-tekst på bilder", desc: "Beskriv alle bilder for bedre tilgjengelighet og SEO." },
+                    { title: "Optimaliser URL-struktur", desc: "Bruk korte, beskrivende URLer med nøkkelord." }
+                ],
+                poor: [
+                    { title: "Legg til grunnleggende meta-tagger", desc: "Title, description og keywords mangler eller er dårlig optimalisert." },
+                    { title: "Forbedre innholdsstruktur", desc: "Bruk overskrifter (H1-H6) riktig og strukturér innholdet logisk." },
+                    { title: "Implementér strukturerte data", desc: "Legg til Schema.org markup for bedre søkemotorforståelse." },
+                    { title: "Optimaliser for mobile", desc: "Sørg for at nettsiden er mobilvenleg og responsiv." }
+                ]
+            },
+            accessibility: {
+                excellent: [
+                    { title: "Fantastisk tilgjengelighet! ♿", desc: "Nettsiden er godt tilpasset for alle brukere." }
+                ],
+                good: [
+                    { title: "Forbedre kontrast", desc: "Sørg for at tekst har god kontrast mot bakgrunnen (minimum 4.5:1)." },
+                    { title: "Legg til ARIA-labels", desc: "Bruk ARIA-attributter for bedre skjermleser-støtte." }
+                ],
+                'needs-improvement': [
+                    { title: "Legg til alt-tekst på alle bilder", desc: "Beskriv innholdet i bilder for skjermleser-brukere." },
+                    { title: "Implementér tastaturnavigasjon", desc: "Sørg for at alle elementer kan nås med tastaturet." },
+                    { title: "Forbedre fargekontrast", desc: "Øk kontrasten mellom tekst og bakgrunn." }
+                ],
+                poor: [
+                    { title: "Legg til alt-tekst på bilder", desc: "Mange bilder mangler beskrivende alt-attributter." },
+                    { title: "Fikse fargekontrast", desc: "Teksten er vanskelig å lese på grunn av dårlig kontrast." },
+                    { title: "Implementér ARIA-støtte", desc: "Legg til ARIA-labels og roller for skjermlesere." },
+                    { title: "Testér med tastatur", desc: "Sørg for at hele nettsiden kan navigeres uten mus." }
+                ]
+            },
+            bestPractices: {
+                excellent: [
+                    { title: "Følger beste praksis! ✅", desc: "Nettsiden bruker moderne web-standarder og sikre metoder." }
+                ],
+                good: [
+                    { title: "Implementér HTTPS", desc: "Sørg for at alle sider bruker sikker HTTPS-tilkobling." },
+                    { title: "Oppdatér biblioteker", desc: "Hold JavaScript-biblioteker oppdaterte for sikkerhet." }
+                ],
+                'needs-improvement': [
+                    { title: "Fjern sårbarheter", desc: "Oppdatér utdaterte biblioteker og plugins." },
+                    { title: "Implementér Content Security Policy", desc: "Legg til CSP-headers for bedre sikkerhet." },
+                    { title: "Optimaliser for HTTPS", desc: "Sørg for sikre tilkoblinger på hele nettsiden." }
+                ],
+                poor: [
+                    { title: "Fikse sikkerhetsproblemer", desc: "Nettsiden har alvorlige sikkerhetshull som må utbedres." },
+                    { title: "Oppgradér til HTTPS", desc: "HTTP er usikkert - bytt til HTTPS umiddelbart." },
+                    { title: "Oppdatér alle biblioteker", desc: "Mange utdaterte biblioteker utgjør sikkerhetsrisiko." },
+                    { title: "Implementér sikkerhetstiltak", desc: "Legg til CSP, HSTS og andre sikkerhetstiltak." }
+                ]
+            }
+        };
+
+        function getScoreStatus(score) {
+            if (score >= 90) return { status: 'excellent', text: 'Utmerket' };
+            if (score >= 70) return { status: 'good', text: 'Bra' };
+            if (score >= 50) return { status: 'needs-improvement', text: 'Trenger forbedring' };
+            return { status: 'poor', text: 'Dårlig' };
+        }
+
+        function getVitalStatus(metric, value) {
+            const thresholds = {
+                LCP: { good: 2500, poor: 4000 },
+                FID: { good: 100, poor: 300 },
+                CLS: { good: 0.1, poor: 0.25 },
+                FCP: { good: 1800, poor: 3000 },
+                SI: { good: 3400, poor: 5800 },
+                TTI: { good: 3800, poor: 7300 },
+                TBT: { good: 200, poor: 600 }
+            };
+            
+            const threshold = thresholds[metric];
+            if (!threshold) return 'good';
+            
+            if (value <= threshold.good) return 'good';
+            if (value <= threshold.poor) return 'needs-improvement';
+            return 'poor';
+        }
+
+        function formatVitalValue(metric, value) {
+            if (metric === 'CLS') {
+                return { value: value.toFixed(3), unit: '' };
+            } else if (value >= 1000) {
+                return { value: (value / 1000).toFixed(1), unit: 's' };
+            } else {
+                return { value: Math.round(value), unit: 'ms' };
+            }
+        }
+
+        function displayCoreWebVitals(data) {
+            const vitalsGrid = document.getElementById('vitalsGrid');
+            const coreVitals = document.getElementById('coreVitals');
+            
+            if (!data.CoreWebVitals) return;
+            
+            const vitals = [
+                { 
+                    key: 'LCP', 
+                    name: 'Largest Contentful Paint', 
+                    desc: 'Lasestart for hovedinnhold',
+                    explanation: 'Måler tiden det tar før det største synlige elementet på siden er fullstendig lastet. Dette er ofte et bilde, video eller stor tekstblokk.',
+                    thresholds: { good: '≤ 2.5s', improvement: '2.5s - 4.0s', poor: '> 4.0s' }
+                },
+                { 
+                    key: 'FID', 
+                    name: 'First Input Delay', 
+                    desc: 'Responstid på første klikk',
+                    explanation: 'Måler tiden fra brukerens første interaksjon (klikk, tap) til nettleseren faktisk kan respondere på den interaksjonen.',
+                    thresholds: { good: '≤ 100ms', improvement: '100ms - 300ms', poor: '> 300ms' }
+                },
+                { 
+                    key: 'CLS', 
+                    name: 'Cumulative Layout Shift', 
+                    desc: 'Visuell stabilitet',
+                    explanation: 'Måler hvor mye innholdet på siden "hopper" eller flytter seg under lastingen. Lavere verdier er bedre.',
+                    thresholds: { good: '≤ 0.1', improvement: '0.1 - 0.25', poor: '> 0.25' }
+                },
+                { 
+                    key: 'FCP', 
+                    name: 'First Contentful Paint', 
+                    desc: 'Første innhold vises',
+                    explanation: 'Måler tiden til det første innholdet (tekst, bilder, etc.) blir synlig på skjermen.',
+                    thresholds: { good: '≤ 1.8s', improvement: '1.8s - 3.0s', poor: '> 3.0s' }
+                },
+                { 
+                    key: 'SI', 
+                    name: 'Speed Index', 
+                    desc: 'Hastighet på innholdslasting',
+                    explanation: 'Måler hvor raskt innholdet blir synlig under sidelastingen. Lavere verdier er bedre.',
+                    thresholds: { good: '≤ 3.4s', improvement: '3.4s - 5.8s', poor: '> 5.8s' }
+                },
+                { 
+                    key: 'TTI', 
+                    name: 'Time to Interactive', 
+                    desc: 'Tid til full interaktivitet',
+                    explanation: 'Måler tiden til siden er fullstendig interaktiv og kan respondere på brukerinteraksjoner.',
+                    thresholds: { good: '≤ 3.8s', improvement: '3.8s - 7.3s', poor: '> 7.3s' }
+                },
+                { 
+                    key: 'TBT', 
+                    name: 'Total Blocking Time', 
+                    desc: 'Total blokkeringstid',
+                    explanation: 'Måler total tid der siden er blokkert fra å respondere på brukerinteraksjoner. Lavere verdier er bedre.',
+                    thresholds: { good: '≤ 200ms', improvement: '200ms - 600ms', poor: '> 600ms' }
+                }
+            ];
+            
+            vitalsGrid.innerHTML = vitals.map(vital => {
+                const value = data.CoreWebVitals[vital.key];
+                const status = getVitalStatus(vital.key, value);
+                const formatted = formatVitalValue(vital.key, value);
+                
+                return `
+                    <div class="vital-card ${status}" 
+                         onclick="showVitalExplanation(event, '${vital.key}')"
+                         data-vital='${JSON.stringify(vital)}'>
+                        <div class="vital-name">${vital.name}</div>
+                        <div class="vital-value">${formatted.value}<span class="vital-unit">${formatted.unit}</span></div>
+                        <div class="vital-status status-${status}">${status === 'good' ? 'Bra' : status === 'needs-improvement' ? 'Kan forbedres' : 'Dårlig'}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Show opportunities if available
+            if (data.PerformanceDetails && data.PerformanceDetails.opportunities) {
+                const opportunitiesList = document.getElementById('opportunitiesList');
+                opportunitiesList.innerHTML = data.PerformanceDetails.opportunities.map(opp => `
+                    <div class="opportunity-item">
+                        <div class="opportunity-title">${opp.title}</div>
+                        <div class="opportunity-desc">${opp.description}</div>
+                        ${opp.displayValue ? `<div class="opportunity-savings">Potensial besparelse: ${opp.displayValue}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+            
+            coreVitals.style.display = 'block';
+        }
+
+        function updateScoreCard(category, score) {
+            const scoreEl = document.getElementById(category);
+            const statusEl = document.getElementById(category + 'Status');
+            const { status, text } = getScoreStatus(score);
+            
+            scoreEl.textContent = score;
+            statusEl.textContent = text;
+            statusEl.className = 'score-status status-' + status.replace('-', '-');
+        }
+
+        function showRecommendations(data) {
+            const recommendationsEl = document.getElementById('recommendations');
+            
+            // Vis anbefalinger for hver kategori
+            ['performance', 'seo', 'accessibility', 'bestPractices'].forEach(category => {
+                let categoryData;
+                switch(category) {
+                    case 'performance':
+                        categoryData = data.Performance;
+                        break;
+                    case 'seo':
+                        categoryData = data.SEO;
+                        break;
+                    case 'accessibility':
+                        categoryData = data.Accessibility;
+                        break;
+                    case 'bestPractices':
+                        categoryData = data.BestPractices;
+                        break;
+                }
+                
+                const score = Math.round(categoryData * 100);
+                const { status } = getScoreStatus(score);
+                const categoryRecommendations = recommendationData[category][status] || recommendationData[category]['needs-improvement'];
+                
+                const container = document.getElementById(category + 'Recommendations');
+                if (container) {
+                    container.innerHTML = categoryRecommendations.map(rec => `
+                        <div class="recommendation-item">
+                            <div class="recommendation-title">${rec.title}</div>
+                            <div class="recommendation-desc">${rec.desc}</div>
+                        </div>
+                    `).join('');
+                }
+            });
+            
+            recommendationsEl.style.display = 'block';
+        }
+
+        function showTools() {
+            const toolsSection = document.getElementById('toolsSection');
+            toolsSection.style.display = 'block';
+        }
+
+        function toggleCategory(category) {
+            const content = document.getElementById(category + 'Content');
+            const toggle = document.getElementById(category + 'Toggle');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                toggle.classList.remove('rotated');
+            } else {
+                content.classList.add('active');
+                toggle.classList.add('rotated');
+            }
+        }
+
+        function showCategoryDetails(category) {
+            const content = document.getElementById(category + 'Content');
+            const toggle = document.getElementById(category + 'Toggle');
+            
+            // Scroll til anbefalinger
+            document.getElementById('recommendations').scrollIntoView({ behavior: 'smooth' });
+            
+            // Åpne kategorien
+            setTimeout(() => {
+                content.classList.add('active');
+                toggle.classList.add('rotated');
+            }, 500);
+        }
+
+        function showVitalExplanation(event, vitalKey) {
+            const card = event.currentTarget;
+            const vitalData = JSON.parse(card.dataset.vital);
+            const explanation = document.getElementById('vitalExplanation');
+            
+            explanation.innerHTML = `
+                <h4>${vitalData.name}</h4>
+                <p>${vitalData.explanation}</p>
+                <div class="metric-range">
+                    <div class="range-good">✅ Bra: ${vitalData.thresholds.good}</div>
+                    <div class="range-improvement">⚠️ Kan forbedres: ${vitalData.thresholds.improvement}</div>
+                    <div class="range-poor">❌ Dårlig: ${vitalData.thresholds.poor}</div>
+                </div>
+            `;
+            
+            // Position tooltip
+            const rect = card.getBoundingClientRect();
+            explanation.style.display = 'block';
+            explanation.style.left = (rect.left + rect.width / 2 - 150) + 'px';
+            explanation.style.top = (rect.bottom + 10) + 'px';
+            
+            // Hide tooltip after 5 seconds
+            setTimeout(() => {
+                explanation.style.display = 'none';
+            }, 5000);
+        }
+
+        // Hide explanation when clicking elsewhere
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.vital-card') && !e.target.closest('.vital-explanation')) {
+                document.getElementById('vitalExplanation').style.display = 'none';
+            }
+        });
+
+        document.getElementById('auditForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('url').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const recommendations = document.getElementById('recommendations');
+            const error = document.getElementById('error');
+            
+            // Reset state
+            results.style.display = 'none';
+            recommendations.style.display = 'none';
+            document.getElementById('coreVitals').style.display = 'none';
+            document.getElementById('toolsSection').style.display = 'none';
+            error.style.display = 'none';
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch(`/scanSite?url=${encodeURIComponent(url)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Feil under analyse av nettside');
+                }
+                
+                const data = await response.json();
+                
+                // Display results
+                document.getElementById('urlTested').textContent = `Testet URL: ${data.URL}`;
+                
+                updateScoreCard('performance', Math.round(data.Performance * 100));
+                updateScoreCard('seo', Math.round(data.SEO * 100));
+                updateScoreCard('accessibility', Math.round(data.Accessibility * 100));
+                updateScoreCard('bestPractices', Math.round(data.BestPractices * 100));
+                
+                results.style.display = 'block';
+                displayCoreWebVitals(data);
+                showRecommendations(data);
+                showTools();
+                
+            } catch (err) {
+                error.textContent = err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
