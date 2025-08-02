@@ -34,9 +34,15 @@ cd functions && npm install
 firebase serve
 ```
 
-## 🌐 Live Demo
+## 🌐 Bruk
 
-[Se live versjon her](https://web-audit-15eaf.web.app) *(oppdater med din URL)*
+Denne appen kjøres lokalt på din maskin for å unngå hosting-kostnader.
+
+```bash
+# Start lokal versjon
+firebase emulators:start
+# Gå til http://localhost:5000
+```
 
 ## 📊 Hva appen analyserer
 
@@ -65,15 +71,17 @@ Appen anbefaler og lenker til 12+ gratis verktøy for å implementere forbedring
 - **GTmetrix** - Performance testing
 - Og flere...
 
-## 🔧 Utvikling
+## 🔧 Lokal utvikling
 
 ```bash
-# Start Firebase emulators
+# Start Firebase emulators (inkluderer Functions og Hosting)
 firebase emulators:start
 
-# Deploy til produksjon
-firebase deploy
+# Åpne http://localhost:5000 i nettleseren
+# Functions kjører på http://localhost:5001
 ```
+
+**Merk:** Appen krever Firebase Functions som kjører lokalt for full funksjonalitet.
 
 ## 📝 Lisens
 
