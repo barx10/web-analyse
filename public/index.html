@@ -591,6 +591,95 @@
             display: none;
         }
 
+        .seo-indexing {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .seo-alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .seo-alert.critical {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            border: 2px solid #dc3545;
+        }
+
+        .seo-alert.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffc107;
+        }
+
+        .seo-alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .seo-alert-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .seo-alert-icon {
+            font-size: 1.5rem;
+        }
+
+        .seo-alert-description {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .seo-alert-fix {
+            background: rgba(255,255,255,0.3);
+            padding: 0.75rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .seo-alert.critical .seo-alert-fix {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .seo-checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .seo-check-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .seo-check-item.passed {
+            border-left: 3px solid #28a745;
+        }
+
+        .seo-check-item.failed {
+            border-left: 3px solid #dc3545;
+            background: #fff5f5;
+        }
+
+        .seo-check-icon {
+            font-size: 1rem;
+        }
+
         .tools-section {
             margin-top: 2rem;
             display: none;
@@ -753,7 +842,18 @@
                 </div>
             </div>
         </div>
-        
+
+        <div class="seo-indexing" id="seoIndexing">
+            <h2>🔍 SEO & Indeksering</h2>
+            <p style="color: #666; margin-bottom: 1rem;">Sjekk om Google kan finne og indeksere siden din</p>
+            <div id="seoAlerts">
+                <!-- SEO alerts will be populated here -->
+            </div>
+            <div class="seo-checklist" id="seoChecklist">
+                <!-- SEO checklist will be populated here -->
+            </div>
+        </div>
+
         <div class="core-vitals" id="coreVitals">
             <h2>🚀 Core Web Vitals</h2>
             <p style="color: #666; margin-bottom: 1rem;">Googles viktigste målepunkter for brukeropplevelse</p>
@@ -1190,6 +1290,66 @@
             }
         }
 
+        function displaySEOIndexing(data) {
+            const seoIndexing = document.getElementById('seoIndexing');
+            const seoAlerts = document.getElementById('seoAlerts');
+            const seoChecklist = document.getElementById('seoChecklist');
+
+            if (!data.SEOIndexing) {
+                seoIndexing.style.display = 'none';
+                return;
+            }
+
+            const seo = data.SEOIndexing;
+            let alertsHtml = '';
+            let checklistHtml = '';
+
+            // Vis kritiske problemer først
+            if (seo.problems && seo.problems.length > 0) {
+                alertsHtml = seo.problems.map(problem => `
+                    <div class="seo-alert ${problem.severity}">
+                        <div class="seo-alert-header">
+                            <span class="seo-alert-icon">${problem.severity === 'critical' ? '🚨' : problem.severity === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                            ${problem.title}
+                        </div>
+                        <div class="seo-alert-description">${problem.description}</div>
+                        <div class="seo-alert-fix"><strong>Løsning:</strong> ${problem.fix}</div>
+                    </div>
+                `).join('');
+            } else {
+                alertsHtml = `
+                    <div class="seo-alert success">
+                        <div class="seo-alert-header">
+                            <span class="seo-alert-icon">✅</span>
+                            Ingen kritiske indekseringsproblemer funnet!
+                        </div>
+                        <div class="seo-alert-description">Google kan crawle og indeksere denne siden.</div>
+                    </div>
+                `;
+            }
+
+            // Bygg sjekkliste
+            const checks = [
+                { name: 'Kan indekseres', passed: seo.isCrawlable?.passed, icon: seo.isCrawlable?.passed ? '✅' : '❌' },
+                { name: 'Robots.txt OK', passed: seo.robotsTxt?.passed, icon: seo.robotsTxt?.passed ? '✅' : '⚠️' },
+                { name: 'Canonical URL', passed: seo.canonical?.passed, icon: seo.canonical?.passed ? '✅' : '⚠️' },
+                { name: 'Meta description', passed: seo.metaDescription?.passed, icon: seo.metaDescription?.passed ? '✅' : '⚠️' },
+                { name: 'Mobilvennlig', passed: seo.tapTargets?.passed, icon: seo.tapTargets?.passed ? '✅' : '⚠️' },
+                { name: 'Lesbar skrift', passed: seo.fontSize?.passed, icon: seo.fontSize?.passed ? '✅' : '⚠️' }
+            ];
+
+            checklistHtml = checks.map(check => `
+                <div class="seo-check-item ${check.passed ? 'passed' : 'failed'}">
+                    <span class="seo-check-icon">${check.icon}</span>
+                    <span>${check.name}</span>
+                </div>
+            `).join('');
+
+            seoAlerts.innerHTML = alertsHtml;
+            seoChecklist.innerHTML = checklistHtml;
+            seoIndexing.style.display = 'block';
+        }
+
         function displayCoreWebVitals(data) {
             const vitalsGrid = document.getElementById('vitalsGrid');
             const coreVitals = document.getElementById('coreVitals');
@@ -1408,6 +1568,7 @@
             results.style.display = 'none';
             recommendations.style.display = 'none';
             document.getElementById('coreVitals').style.display = 'none';
+            document.getElementById('seoIndexing').style.display = 'none';
             document.getElementById('aiSection').style.display = 'none';
             document.getElementById('aiContent').classList.remove('active');
             document.getElementById('toolsSection').style.display = 'none';
@@ -1437,6 +1598,7 @@
                 updateScoreCard('bestPractices', Math.round(data.BestPractices * 100));
 
                 results.style.display = 'block';
+                displaySEOIndexing(data);
                 displayCoreWebVitals(data);
 
                 // Show AI section if API key is available
