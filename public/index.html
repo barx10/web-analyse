@@ -389,6 +389,208 @@
         .vital-explanation .range-improvement { color: #FF9800; }
         .vital-explanation .range-poor { color: #F44336; }
         
+        .api-key-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .api-key-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .api-key-header h3 {
+            font-size: 1rem;
+            color: #495057;
+            margin: 0;
+        }
+
+        .api-key-content {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .api-key-content.active {
+            display: block;
+        }
+
+        .api-key-input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .api-key-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .api-key-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .api-key-input-group button {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .api-key-status {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            color: #28a745;
+        }
+
+        .api-key-help {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+
+        .api-key-help a {
+            color: #667eea;
+        }
+
+        .ai-section {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .ai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .ai-header h2 {
+            margin: 0;
+        }
+
+        .ai-generate-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .ai-generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+        }
+
+        .ai-generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-loading {
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+
+        .ai-loading .spinner {
+            border-top-color: #11998e;
+        }
+
+        .ai-content {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #11998e;
+            display: none;
+        }
+
+        .ai-content.active {
+            display: block;
+        }
+
+        .ai-content h3 {
+            color: #11998e;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .ai-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .ai-content p {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .ai-content strong {
+            color: #11998e;
+        }
+
+        .ai-content ol, .ai-content ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .ai-content li {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        .ai-content pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+
+        .ai-content code {
+            background: #f1f3f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #c7254e;
+        }
+
+        .ai-content pre code {
+            background: none;
+            padding: 0;
+            color: #d4d4d4;
+        }
+
+        .ai-content hr {
+            border: none;
+            border-top: 2px solid #e9ecef;
+            margin: 1.5rem 0;
+        }
+
+        .ai-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
         .tools-section {
             margin-top: 2rem;
             display: none;
@@ -499,7 +701,25 @@
             </div>
             <button type="submit" id="submitBtn">Start Analyse</button>
         </form>
-        
+
+        <div class="api-key-section">
+            <div class="api-key-header" onclick="toggleApiKey()">
+                <span id="apiKeyToggle">▶</span>
+                <h3>🤖 AI-anbefalinger (valgfritt)</h3>
+            </div>
+            <div class="api-key-content" id="apiKeyContent">
+                <div class="api-key-input-group">
+                    <input type="password" id="apiKey" placeholder="Din Gemini API-nøkkel">
+                    <button type="button" onclick="saveApiKey()">Lagre</button>
+                </div>
+                <div class="api-key-status" id="apiKeyStatus"></div>
+                <p class="api-key-help">
+                    Få en gratis API-nøkkel fra <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>.
+                    Nøkkelen lagres kun lokalt i nettleseren din.
+                </p>
+            </div>
+        </div>
+
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Analyserer nettside...</p>
@@ -551,7 +771,22 @@
                 </div>
             </div>
         </div>
-        
+
+        <div class="ai-section" id="aiSection">
+            <div class="ai-header">
+                <h2>🤖 AI-anbefalinger</h2>
+                <button class="ai-generate-btn" id="aiGenerateBtn" onclick="generateAISuggestions()">
+                    <span>✨</span> Generer anbefalinger
+                </button>
+            </div>
+            <div class="ai-loading" id="aiLoading">
+                <div class="spinner"></div>
+                <p>AI analyserer nettsiden din...</p>
+            </div>
+            <div class="ai-error" id="aiError"></div>
+            <div class="ai-content" id="aiContent"></div>
+        </div>
+
         <div class="recommendations" id="recommendations">
             <h2>📋 Detaljerte anbefalinger</h2>
             
@@ -709,6 +944,133 @@
     </div>
 
     <script>
+        // Global variable to store analysis data
+        let currentAnalysisData = null;
+
+        // API Key functions
+        function toggleApiKey() {
+            const content = document.getElementById('apiKeyContent');
+            const toggle = document.getElementById('apiKeyToggle');
+
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                toggle.textContent = '▶';
+            } else {
+                content.classList.add('active');
+                toggle.textContent = '▼';
+            }
+        }
+
+        function saveApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const status = document.getElementById('apiKeyStatus');
+
+            if (apiKey) {
+                localStorage.setItem('gemini_api_key', apiKey);
+                status.textContent = '✓ API-nøkkel lagret!';
+                status.style.color = '#28a745';
+            } else {
+                localStorage.removeItem('gemini_api_key');
+                status.textContent = 'API-nøkkel fjernet';
+                status.style.color = '#dc3545';
+            }
+        }
+
+        function loadApiKey() {
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+                document.getElementById('apiKeyStatus').textContent = '✓ API-nøkkel lastet fra lagring';
+            }
+        }
+
+        // Markdown to HTML converter (simple)
+        function markdownToHtml(markdown) {
+            return markdown
+                // Headers
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                // Bold
+                .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+                // Italic
+                .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+                // Code blocks
+                .replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>')
+                // Inline code
+                .replace(/`([^`]+)`/gim, '<code>$1</code>')
+                // Horizontal rule
+                .replace(/^---$/gim, '<hr>')
+                // Ordered lists
+                .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
+                // Unordered lists
+                .replace(/^- (.*$)/gim, '<li>$1</li>')
+                // Line breaks
+                .replace(/\n\n/gim, '</p><p>')
+                .replace(/\n/gim, '<br>');
+        }
+
+        async function generateAISuggestions() {
+            const apiKey = localStorage.getItem('gemini_api_key');
+
+            if (!apiKey) {
+                // Open API key section
+                document.getElementById('apiKeyContent').classList.add('active');
+                document.getElementById('apiKeyToggle').textContent = '▼';
+                document.getElementById('apiKeyStatus').textContent = '⚠️ Legg inn API-nøkkel først';
+                document.getElementById('apiKeyStatus').style.color = '#ffc107';
+                document.getElementById('apiKey').focus();
+                return;
+            }
+
+            if (!currentAnalysisData) {
+                alert('Kjør en analyse først!');
+                return;
+            }
+
+            const btn = document.getElementById('aiGenerateBtn');
+            const loading = document.getElementById('aiLoading');
+            const content = document.getElementById('aiContent');
+            const error = document.getElementById('aiError');
+
+            // Reset state
+            btn.disabled = true;
+            loading.style.display = 'block';
+            content.classList.remove('active');
+            error.style.display = 'none';
+
+            try {
+                const response = await fetch('/getAISuggestions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify(currentAnalysisData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Feil ved AI-analyse');
+                }
+
+                // Convert markdown to HTML and display
+                content.innerHTML = markdownToHtml(data.suggestions);
+                content.classList.add('active');
+
+            } catch (err) {
+                error.textContent = err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        // Load API key on page load
+        document.addEventListener('DOMContentLoaded', loadApiKey);
+
         const recommendationData = {
             performance: {
                 excellent: [
@@ -1046,8 +1408,11 @@
             results.style.display = 'none';
             recommendations.style.display = 'none';
             document.getElementById('coreVitals').style.display = 'none';
+            document.getElementById('aiSection').style.display = 'none';
+            document.getElementById('aiContent').classList.remove('active');
             document.getElementById('toolsSection').style.display = 'none';
             error.style.display = 'none';
+            currentAnalysisData = null;
             loading.style.display = 'block';
             submitBtn.disabled = true;
             
@@ -1059,17 +1424,28 @@
                 }
                 
                 const data = await response.json();
-                
+
+                // Store analysis data for AI
+                currentAnalysisData = data;
+
                 // Display results
                 document.getElementById('urlTested').textContent = `Testet URL: ${data.URL}`;
-                
+
                 updateScoreCard('performance', Math.round(data.Performance * 100));
                 updateScoreCard('seo', Math.round(data.SEO * 100));
                 updateScoreCard('accessibility', Math.round(data.Accessibility * 100));
                 updateScoreCard('bestPractices', Math.round(data.BestPractices * 100));
-                
+
                 results.style.display = 'block';
                 displayCoreWebVitals(data);
+
+                // Show AI section if API key is available
+                if (localStorage.getItem('gemini_api_key')) {
+                    document.getElementById('aiSection').style.display = 'block';
+                } else {
+                    document.getElementById('aiSection').style.display = 'block';
+                }
+
                 showRecommendations(data);
                 showTools();
                 
