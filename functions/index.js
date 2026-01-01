@@ -104,7 +104,7 @@ exports.getAISuggestions = onRequest(async (req, res) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
     const prompt = `Du er en ekspert på weboptimalisering og skal gi KONKRETE, HANDLINGSRETTEDE anbefalinger på norsk.
 
@@ -160,7 +160,7 @@ Vær SPESIFIKK. Ikke si "optimaliser bilder" - si "Bildet hero.jpg på forsiden 
 
     res.json({
       suggestions: text,
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview",
       timestamp: new Date().toISOString()
     });
 
